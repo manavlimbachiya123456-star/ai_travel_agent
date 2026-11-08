@@ -1,4 +1,6 @@
 """FastAPI app: two endpoints, /health and /api/search."""
+import os
+
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,10 +12,15 @@ from schemas import SearchRequest   # noqa: E402
 
 app = FastAPI(title="India Travel Search Agent")
 
-# allow the Vite dev server to call this API from the browser
+# Which websites may call this API from the browser:
+# the local Vite dev server, plus the deployed frontend (set FRONTEND_URL on Render, no trailing slash)
+allowed_origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
+if os.getenv("FRONTEND_URL"):
+    allowed_origins.append(os.getenv("FRONTEND_URL").rstrip("/"))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
